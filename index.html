@@ -10,23 +10,26 @@
         * {
             box-sizing: border-box;
             font-family: 'Tajawal', sans-serif;
+            touch-action:驼; /* لمنع المتصفح من عمل سحب لصفحة الويب كاملة أثناء تحريك العناصر */
         }
 
         body {
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             min-height: 100vh;
             margin: 0;
-            padding: 20px;
+            padding: 15px;
             display: flex;
             justify-content: center;
             align-items: center;
+            -webkit-user-select: none;
+            user-select: none;
         }
 
         .container {
             background-color: #ffffff;
             border-radius: 20px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            padding: 30px;
+            padding: 25px 15px;
             width: 100%;
             max-width: 900px;
             text-align: center;
@@ -34,53 +37,52 @@
 
         h1 {
             color: #2c3e50;
-            margin-bottom: 10px;
-            font-size: 28px;
+            margin-bottom: 5px;
+            font-size: 24px;
         }
 
         .instruction {
             color: #7f8c8d;
-            font-size: 18px;
-            margin-bottom: 25px;
+            font-size: 16px;
+            margin-bottom: 20px;
         }
 
-        /* Score Dashboard */
         .score-board {
             background-color: #ecf0f1;
-            padding: 12px 25px;
+            padding: 10px 20px;
             border-radius: 50px;
             display: inline-block;
-            font-size: 20px;
+            font-size: 18px;
             font-weight: bold;
             color: #2c3e50;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             border: 2px dashed #bdc3c7;
+            transition: all 0.3s;
         }
 
-        /* Drop Zones Grid */
         .zones-container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
+            gap: 15px;
+            margin-bottom: 20px;
         }
 
         .zone {
             background-color: #f8f9fa;
             border: 3px dashed #bdc3c7;
             border-radius: 15px;
-            padding: 20px;
-            min-height: 220px;
+            padding: 15px;
+            min-height: 200px;
             transition: all 0.3s ease;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
         }
 
         .zone h2 {
             margin-top: 0;
-            font-size: 22px;
+            font-size: 20px;
             padding: 5px 15px;
             border-radius: 20px;
             color: #fff;
@@ -93,34 +95,32 @@
         .zone.drag-over {
             border-color: #3498db;
             background-color: #ecf0f1;
-            transform: scale(1.02);
         }
 
-        /* Draggable Cards */
         .draggables-container {
             display: flex;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 12px;
             justify-content: center;
             background-color: #f1f2f6;
-            padding: 20px;
+            padding: 15px;
             border-radius: 15px;
-            min-height: 120px;
+            min-height: 100px;
             margin-bottom: 25px;
         }
 
         .draggable {
             background-color: #ffffff;
             color: #2c3e50;
-            padding: 12px 20px;
+            padding: 12px 18px;
             border-radius: 10px;
             cursor: grab;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
             border: 2px solid #e2e8f0;
             font-weight: 500;
-            font-size: 16px;
-            user-select: none;
-            transition: transform 0.2s, border-color 0.3s, background-color 0.3s;
+            font-size: 15px;
+            transition: transform 0.1s, border-color 0.3s, background-color 0.3s;
+            touch-action: none; /* ضروري جداً لتعطيل التمرير الافتراضي أثناء اللمس */
         }
 
         .draggable:active {
@@ -128,11 +128,19 @@
         }
 
         .draggable.dragging {
-            opacity: 0.5;
-            transform: scale(0.95);
+            opacity: 0.6;
+            transform: scale(0.98);
         }
 
-        /* Visual Feedback States after Submit */
+        /* ستايل مخصص للعنصر أثناء سحبه بالإصبع على الهاتف لجعل حركته سلسة */
+        .draggable.mobile-dragging {
+            position: fixed;
+            z-index: 1000;
+            pointer-events: none; /* لتجنب حجب أحداث اللمس عن العناصر بالأسفل */
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            transform: scale(1.05);
+        }
+
         .correct {
             border-color: #2ecc71 !important;
             background-color: #eafaf1 !important;
@@ -152,7 +160,6 @@
             40%, 80% { transform: translateX(6px); }
         }
 
-        /* Action Buttons */
         .action-buttons {
             display: flex;
             gap: 15px;
@@ -162,8 +169,8 @@
         .btn {
             color: white;
             border: none;
-            padding: 12px 35px;
-            font-size: 18px;
+            padding: 12px 30px;
+            font-size: 16px;
             border-radius: 25px;
             cursor: pointer;
             transition: all 0.2s;
@@ -187,8 +194,8 @@
 <body>
 
 <div class="container">
-    <h1>بَيِّنِ الحُكْمَ الشَّرْعِيَّ</h1>
-    <p class="instruction">صنّف جميع المسائل الفقهية التالية، ثم اضغط على "تأكيد الإجابة" لمعرفة نتيجتك!</p>
+    <h1>س3: بَيِّنِ الحُكْمَ الشَّرْعِيَّ</h1>
+    <p class="instruction">اسحب المسائل وضعها داخل المربعات، ثم اضغط "تأكيد الإجابة"!</p>
 
     <div class="score-board" id="score-display">الدرجة: -- / 6</div>
 
@@ -212,7 +219,7 @@
 
     <div class="action-buttons">
         <button class="btn btn-submit" id="submit-btn" onclick="checkAnswers()">تأكيد الإجابة 🎯</button>
-        <button class="btn btn-reset" onclick="resetActivity()">إعادة المحاولة من جديد 🔄</button>
+        <button class="btn btn-reset" onclick="resetActivity()">إعادة من جديد 🔄</button>
     </div>
 </div>
 
@@ -225,27 +232,92 @@
 
     window.addEventListener('DOMContentLoaded', () => {
         shuffleItems();
+        setupTouchEvents(); // تفعيل دعم شاشات اللمس فور تحميل الصفحة
     });
 
-    // Handle Drag and Drop flows
+    // --- أولاً: أكواد دعم اللمس للهواتف (Touch Events) ---
+    function setupTouchEvents() {
+        draggables.forEach(item => {
+            let initialX, initialY;
+            
+            item.addEventListener('touchstart', (e) => {
+                if (item.getAttribute('draggable') === 'false') return;
+                
+                const touch = e.touches[0];
+                initialX = touch.clientX - item.getBoundingClientRect().left;
+                initialY = touch.clientY - item.getBoundingClientRect().top;
+                
+                // تحديد أبعاد العنصر الأصلية وتثبيتها أثناء الحركة للـ Mobile
+                item.style.width = item.offsetWidth + 'px';
+                item.classList.add('mobile-dragging');
+                
+                moveAt(touch.clientX, touch.clientY);
+
+                function moveAt(pageX, pageY) {
+                    item.style.left = (pageX - initialX) + 'px';
+                    item.style.top = (pageY - initialY) + 'px';
+                }
+
+                function onTouchMove(event) {
+                    const moveTouch = event.touches[0];
+                    moveAt(moveTouch.clientX, moveTouch.clientY);
+                    
+                    // محاكاة تأثير "dragover" على الصناديق أثناء حركة الإصبع
+                    const elementUnderTouch = document.elementFromPoint(moveTouch.clientX, moveTouch.clientY);
+                    const currentZone = elementUnderTouch ? elementUnderTouch.closest('.zone') : null;
+                    
+                    zones.forEach(z => z.classList.remove('drag-over'));
+                    if (currentZone) currentZone.classList.add('drag-over');
+                }
+
+                document.addEventListener('touchmove', onTouchMove, { passive: false });
+
+                item.addEventListener('touchend', (event) => {
+                    document.removeEventListener('touchmove', onTouchMove);
+                    item.classList.remove('mobile-dragging');
+                    
+                    // استعادة نمط التموضع الافتراضي
+                    item.style.position = '';
+                    item.style.left = '';
+                    item.style.top = '';
+                    item.style.width = '';
+
+                    const endTouch = event.changedTouches[0];
+                    const elementUnderTouch = document.elementFromPoint(endTouch.clientX, endTouch.clientY);
+                    const targetZone = elementUnderTouch ? elementUnderTouch.closest('.zone') : null;
+                    const targetPool = elementUnderTouch ? elementUnderTouch.closest('#items-pool') : null;
+
+                    zones.forEach(z => z.classList.remove('drag-over'));
+
+                    if (targetZone) {
+                        targetZone.appendChild(item);
+                        item.classList.remove('correct', 'incorrect');
+                    } else if (targetPool) {
+                        targetPool.appendChild(item);
+                        item.classList.remove('correct', 'incorrect');
+                    } else {
+                        // إذا أفلت الإصبع خارج الصناديق يرجع للمنتصف
+                        pool.appendChild(item);
+                        item.classList.remove('correct', 'incorrect');
+                    }
+                }, { once: true });
+            });
+        });
+    }
+
+    // --- ثانياً: أكواد دعم الماوس التقليدية للكمبيوتر (Desktop Drag & Drop) ---
     draggables.forEach(draggable => {
         draggable.addEventListener('dragstart', () => {
-            draggable.classList.add('dragging');
+            if (draggable.getAttribute('draggable') === 'true') draggable.classList.add('dragging');
         });
-
-        draggable.addEventListener('dragend', () => {
-            draggable.classList.remove('dragging');
-        });
+        draggable.addEventListener('dragend', () => draggable.classList.remove('dragging'));
     });
 
-    // Support dropping back into the main pool
-    pool.addEventListener('dragover', (e) => {
-        e.preventDefault();
-    });
+    pool.addEventListener('dragover', (e) => e.preventDefault());
     pool.addEventListener('drop', (e) => {
         e.preventDefault();
         const draggingItem = document.querySelector('.dragging');
-        if (draggingItem && draggingItem.getAttribute('draggable') === 'true') {
+        if (draggingItem) {
             pool.appendChild(draggingItem);
             draggingItem.classList.remove('correct', 'incorrect');
         }
@@ -256,32 +328,23 @@
             e.preventDefault();
             zone.classList.add('drag-over');
         });
-
-        zone.addEventListener('dragleave', () => {
-            zone.classList.remove('drag-over');
-        });
-
+        zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
         zone.addEventListener('drop', (e) => {
             e.preventDefault();
             zone.classList.remove('drag-over');
-            
             const draggingItem = document.querySelector('.dragging');
-            if (!draggingItem) return;
-
-            // Allow dropping inside the zone
-            zone.appendChild(draggingItem);
-            // Clear temporary check styles if user re-arranges
-            draggingItem.classList.remove('correct', 'incorrect');
+            if (draggingItem) {
+                zone.appendChild(draggingItem);
+                draggingItem.classList.remove('correct', 'incorrect');
+            }
         });
     });
 
-    // Evaluation Logic
+    // --- ثالثاً: منطق فحص الإجابات والتقييم ---
     function checkAnswers() {
         let correctCount = 0;
         let totalItems = draggables.length;
-        let allPlaced = true;
 
-        // Check if any item is still left in the pool
         if (pool.children.length > 0) {
             alert('برجاء تصنيف جميع البطاقات أولاً قبل تأكيد الإجابة!');
             return;
@@ -295,23 +358,20 @@
                 const correctVerdict = item.getAttribute('data-correct');
 
                 if (correctVerdict === targetVerdict) {
-                    // Item is correct -> Lock it down
                     item.classList.remove('incorrect');
                     item.classList.add('correct');
                     item.setAttribute('draggable', 'false'); 
                     correctCount++;
                 } else {
-                    // Item is incorrect -> Flag it and bounce back to pool for retry
                     item.classList.add('incorrect');
                     setTimeout(() => {
                         pool.appendChild(item);
                         item.classList.remove('incorrect');
-                    }, 1200); // Gives time for the learner to see what went wrong
+                    }, 1200); 
                 }
             });
         });
 
-        // Update Dashboard Score
         scoreDisplay.textContent = `الدرجة: ${correctCount} / ${totalItems}`;
 
         if (correctCount === totalItems) {
