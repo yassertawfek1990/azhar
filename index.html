@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>نشاط تفاعلي: بيان الأحكام الشرعية</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap');
@@ -10,7 +10,8 @@
         * {
             box-sizing: border-box;
             font-family: 'Tajawal', sans-serif;
-            touch-action:驼; /* لمنع المتصفح من عمل سحب لصفحة الويب كاملة أثناء تحريك العناصر */
+            -webkit-user-select: none;
+            user-select: none;
         }
 
         body {
@@ -21,8 +22,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            -webkit-user-select: none;
-            user-select: none;
+            overflow-x: hidden;
         }
 
         .container {
@@ -57,7 +57,6 @@
             color: #2c3e50;
             margin-bottom: 20px;
             border: 2px dashed #bdc3c7;
-            transition: all 0.3s;
         }
 
         .zones-container {
@@ -119,25 +118,20 @@
             border: 2px solid #e2e8f0;
             font-weight: 500;
             font-size: 15px;
-            transition: transform 0.1s, border-color 0.3s, background-color 0.3s;
-            touch-action: none; /* ضروري جداً لتعطيل التمرير الافتراضي أثناء اللمس */
-        }
-
-        .draggable:active {
-            cursor: grabbing;
+            touch-action: none; /* لمنع المتصفح الافتراضي من التدخل */
+            -webkit-touch-callout: none; /* لمنع ظهور قائمة الـ الحفظ في الآيفون عند الضغط المطول */
         }
 
         .draggable.dragging {
             opacity: 0.6;
-            transform: scale(0.98);
         }
 
-        /* ستايل مخصص للعنصر أثناء سحبه بالإصبع على الهاتف لجعل حركته سلسة */
+        /* ستايل الآيفون والموبايل أثناء السحب */
         .draggable.mobile-dragging {
-            position: fixed;
-            z-index: 1000;
-            pointer-events: none; /* لتجنب حجب أحداث اللمس عن العناصر بالأسفل */
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            position: fixed !important;
+            z-index: 9999 !important;
+            pointer-events: none !important;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3) !important;
             transform: scale(1.05);
         }
 
@@ -173,28 +167,19 @@
             font-size: 16px;
             border-radius: 25px;
             cursor: pointer;
-            transition: all 0.2s;
             font-weight: bold;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
         .btn-submit { background-color: #3498db; }
-        .btn-submit:hover { background-color: #2980b9; }
-
         .btn-reset { background-color: #7f8c8d; }
-        .btn-reset:hover { background-color: #6c7a89; }
-        
-        .btn:disabled {
-            background-color: #bdc3c7;
-            cursor: not-allowed;
-            box-shadow: none;
-        }
+        .btn:disabled { background-color: #bdc3c7; cursor: not-allowed; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>س3: بَيِّنِ الحُكْمَ الشَّرْعِيَّ</h1>
+    <h1> بَيِّنِ الحُكْمَ الشَّرْعِيَّ</h1>
     <p class="instruction">اسحب المسائل وضعها داخل المربعات، ثم اضغط "تأكيد الإجابة"!</p>
 
     <div class="score-board" id="score-display">الدرجة: -- / 6</div>
@@ -232,80 +217,94 @@
 
     window.addEventListener('DOMContentLoaded', () => {
         shuffleItems();
-        setupTouchEvents(); // تفعيل دعم شاشات اللمس فور تحميل الصفحة
+        setupMobileTouch(); // تشغيل النظام المخصص للآيفون والموبايل
     });
 
-    // --- أولاً: أكواد دعم اللمس للهواتف (Touch Events) ---
-    function setupTouchEvents() {
+    // --- نظام اللمس المطور لحل مشكلة السحب على الآيفون (iOS Touch Handler) ---
+    function setupMobileTouch() {
         draggables.forEach(item => {
-            let initialX, initialY;
-            
-            item.addEventListener('touchstart', (e) => {
+            let startX, startY;
+            let offsetX = 0, offsetY = 0;
+
+            item.addEventListener('touchstart', function(e) {
                 if (item.getAttribute('draggable') === 'false') return;
                 
+                // منع فتح القوائم المنبثقة أو سحب الصفحة في السفاري
+                e.stopPropagation();
+
                 const touch = e.touches[0];
-                initialX = touch.clientX - item.getBoundingClientRect().left;
-                initialY = touch.clientY - item.getBoundingClientRect().top;
+                const rect = item.getBoundingClientRect();
                 
-                // تحديد أبعاد العنصر الأصلية وتثبيتها أثناء الحركة للـ Mobile
-                item.style.width = item.offsetWidth + 'px';
+                // حساب المسافة بين مكان اللمس وزاوية الكارت لعدم حدوث قفزة عند البدء
+                offsetX = touch.clientX - rect.left;
+                offsetY = touch.clientY - rect.top;
+
+                // تثبيت حجم الكارت الحالي قبل تحويله لـ fixed لئلا يتشوه شكله في الآيفون
+                item.style.width = rect.width + 'px';
+                item.style.height = rect.height + 'px';
+                
                 item.classList.add('mobile-dragging');
                 
-                moveAt(touch.clientX, touch.clientY);
+                // وضعه مباشرة تحت الإصبع
+                item.style.left = (touch.clientX - offsetX) + 'px';
+                item.style.top = (touch.clientY - offsetY) + 'px';
+            }, { passive: false });
 
-                function moveAt(pageX, pageY) {
-                    item.style.left = (pageX - initialX) + 'px';
-                    item.style.top = (pageY - initialY) + 'px';
+            item.addEventListener('touchmove', function(e) {
+                if (!item.classList.contains('mobile-dragging')) return;
+                
+                // السطر الأهم للآيفون: يمنع الشاشة من الاهتزاز أو النزول لأسفل أثناء السحب
+                e.preventDefault(); 
+                e.stopPropagation();
+
+                const touch = e.touches[0];
+                
+                item.style.left = (touch.clientX - offsetX) + 'px';
+                item.style.top = (touch.clientY - offsetY) + 'px';
+
+                // كشف المنطقة التي يقف فوقها الإصبع حالياً لتفعيل تأثير الإضاءة (Hover تأثير)
+                const elem = document.elementFromPoint(touch.clientX, touch.clientY);
+                const currentZone = elem ? elem.closest('.zone') : null;
+                
+                zones.forEach(z => z.classList.remove('drag-over'));
+                if (currentZone) currentZone.classList.add('drag-over');
+            }, { passive: false });
+
+            item.addEventListener('touchend', function(e) {
+                if (!item.classList.contains('mobile-dragging')) return;
+                e.stopPropagation();
+
+                item.classList.remove('mobile-dragging');
+                
+                // تنظيف الستايلات المؤقتة للسحب
+                item.style.position = '';
+                item.style.left = '';
+                item.style.top = '';
+                item.style.width = '';
+                item.style.height = '';
+
+                // تحديد أين تم الإفلات بالاعتماد على آخر نقطة لمسها الإصبع
+                const touch = e.changedTouches[0];
+                const elem = document.elementFromPoint(touch.clientX, touch.clientY);
+                
+                const targetZone = elem ? elem.closest('.zone') : null;
+                const targetPool = elem ? elem.closest('#items-pool') : null;
+
+                zones.forEach(z => z.classList.remove('drag-over'));
+
+                if (targetZone) {
+                    targetZone.appendChild(item);
+                } else if (targetPool) {
+                    targetPool.appendChild(item);
+                } else {
+                    pool.appendChild(item); // يرجع للمنتصف إذا أفلت في مكان فارغ
                 }
-
-                function onTouchMove(event) {
-                    const moveTouch = event.touches[0];
-                    moveAt(moveTouch.clientX, moveTouch.clientY);
-                    
-                    // محاكاة تأثير "dragover" على الصناديق أثناء حركة الإصبع
-                    const elementUnderTouch = document.elementFromPoint(moveTouch.clientX, moveTouch.clientY);
-                    const currentZone = elementUnderTouch ? elementUnderTouch.closest('.zone') : null;
-                    
-                    zones.forEach(z => z.classList.remove('drag-over'));
-                    if (currentZone) currentZone.classList.add('drag-over');
-                }
-
-                document.addEventListener('touchmove', onTouchMove, { passive: false });
-
-                item.addEventListener('touchend', (event) => {
-                    document.removeEventListener('touchmove', onTouchMove);
-                    item.classList.remove('mobile-dragging');
-                    
-                    // استعادة نمط التموضع الافتراضي
-                    item.style.position = '';
-                    item.style.left = '';
-                    item.style.top = '';
-                    item.style.width = '';
-
-                    const endTouch = event.changedTouches[0];
-                    const elementUnderTouch = document.elementFromPoint(endTouch.clientX, endTouch.clientY);
-                    const targetZone = elementUnderTouch ? elementUnderTouch.closest('.zone') : null;
-                    const targetPool = elementUnderTouch ? elementUnderTouch.closest('#items-pool') : null;
-
-                    zones.forEach(z => z.classList.remove('drag-over'));
-
-                    if (targetZone) {
-                        targetZone.appendChild(item);
-                        item.classList.remove('correct', 'incorrect');
-                    } else if (targetPool) {
-                        targetPool.appendChild(item);
-                        item.classList.remove('correct', 'incorrect');
-                    } else {
-                        // إذا أفلت الإصبع خارج الصناديق يرجع للمنتصف
-                        pool.appendChild(item);
-                        item.classList.remove('correct', 'incorrect');
-                    }
-                }, { once: true });
+                item.classList.remove('correct', 'incorrect');
             });
         });
     }
 
-    // --- ثانياً: أكواد دعم الماوس التقليدية للكمبيوتر (Desktop Drag & Drop) ---
+    // --- دعم الماوس العادي للكمبيوتر واللاب توب ---
     draggables.forEach(draggable => {
         draggable.addEventListener('dragstart', () => {
             if (draggable.getAttribute('draggable') === 'true') draggable.classList.add('dragging');
@@ -340,7 +339,7 @@
         });
     });
 
-    // --- ثالثاً: منطق فحص الإجابات والتقييم ---
+    // --- منطق احتساب الدرجات ---
     function checkAnswers() {
         let correctCount = 0;
         let totalItems = draggables.length;
